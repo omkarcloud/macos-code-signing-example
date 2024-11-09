@@ -1,0 +1,388 @@
+# Mac Signing And Notarisation Demo
+
+### ❓ How to sign and notarize an Electron App for Mac OS?
+
+**1. Initial Setup**
+1. Create an Apple Account if you don't have one.
+2. Install Xcode and Apple Developer App from the App Store.
+3. Open the Apple Developer App and subscribe to the $99 Apple Developer Program, providing accurate details as per your *National ID*.
+4. Wait until you receive the Apple Developer Program Welcome Email, which may take up to 48 hours.
+!
+**2. Get Required Credentials**
+
+*App Specific Password:*
+1. Visit https://account.apple.com/account/manage.
+2. Sign in to your Apple Account.
+3. Create a new App Specific Password and store it securely.
+
+*Developer ID Application Certificate:*
+1. Open Xcode > Settings > Account > "Manage Certificates".
+2. Click "+" to create a "Developer ID Application Certificate".
+3. Generate a random password at https://www.avast.com/en-in/random-password-generator.
+4. Left-click the Certificate, export it:
+   - Use the generated password.
+   - Name the file "certificate".
+   - Save "certificate.p12" in a secure location.
+
+*Team ID:*
+1. Visit https://developer.apple.com/account.
+2. Scroll to the "Membership details" Card and copy the "Team ID" to a secure place.
+
+**3. Sign and Notarize Sample Application**
+
+*Important Notes:*
+- Perform this at night, as the first-time notarization can take 8 to 12 hours (subsequent notarizations are done in 10 minutes).
+- Sign and notarize the provided sample app to understand the process. You can later follow the steps in the next section to sign and notarize your own application.
+
+*Steps:*
+1. Setup the sample app:
+```
+git clone https://github.com/omkarcloud/mac-code-signing-example
+cd mac-code-signing-example
+npm install
+```
+2. Place the "certificate.p12" file exported earlier in the root directory.
+3. Open "package-mac-signed.sh" and replace placeholders with your credentials:
+```bash
+export APPLE_ID="shinchan@gmail.com" # Replace with your Apple ID email
+export APPLE_APP_SPECIFIC_PASSWORD="MY_APP_SPECIFIC_PASSWORD" # Replace with your App Specific Password, it looks like "dsjg-zqet-rpzp-nfzy"
+export APPLE_TEAM_ID="MY_TEAM_ID" # Replace with your Team ID, it looks like "AB8Y7TRS2P"
+export CSC_LINK="./certificate.p12" # Keep it as it is
+export CSC_KEY_PASSWORD="MY_CERTIFICATE_PASSWORD" # Replace with your Certificate Password
+npm run package:mac-signed
+```
+4. Run `bash package-mac-signed.sh`.
+5. Once you see the "notarization successful" message in the terminal, you can now distribute the ".dmg" via the internet to your users without facing any security warnings. Hurray! 🎉
+6. Now, let's proceed to sign and notarize your own custom application using Electron Builder.
+
+**4. Signing Your Own Application**
+
+1. Ensure your "entitlements.mac.plist" has the following entitlements for Electron to function:
+```xml
+<key>com.apple.security.cs.allow-jit</key>
+<true/>
+<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+<true/>
+```
+2. Ensure that in your "package.json", the Electron "build" config's "mac" section looks like the following for creating a universal build. Using a universal build for installation will avoid confusion among Intel and M-series Mac users:
+```json
+{
+  "mac": {
+    "identity": "FirstName LastName (MY_TEAM_ID)",
+    "category": "public.app-category.developer-tools",
+    "target": [
+      {
+        "target": "default",
+        "arch": ["universal"]
+      }
+    ],
+    "artifactName": "${productName}.${ext}",
+    "type": "distribution",
+    "hardenedRuntime": true,
+    "entitlements": "assets/entitlements.mac.plist",
+    "entitlementsInherit": "assets/entitlements.mac.plist",
+    "gatekeeperAssess": true,
+    "notarize": {
+      "teamId": "MY_TEAM_ID"
+    }
+  }
+}
+```
+Remember to:
+- Change the FirstName and LastName that you provided when enrolling in the Apple Developer Program.
+- Replace MY_TEAM_ID with your Team ID.
+
+3. In your package.json scripts, add a new script to build the universal Mac dmg for production:
+```json
+{
+  "scripts": {
+   "package:mac-signed": "ANY_PRE_BUILD_STEPS && electron-builder build --mac --universal --publish never && ANY_POST_BUILD_STEPS",
+  }
+}
+```
+Also, add the following script, which will help you create an unsigned build, which is useful for testing:
+```json 
+{
+  "scripts": {
+  "package:mac-unsigned": "ANY_PRE_BUILD_STEPS && electron-builder build -c.mac.identity=null -c.mac.gatekeeperAssess=false -c.mac.notarize=false --mac --universal --publish never && ANY_POST_BUILD_STEPS",
+  }
+}
+```
+Replace ANY_PRE_BUILD_STEPS and ANY_POST_BUILD_STEPS with your pre and post-build steps, if you have any. If you don't have any, remove them.
+4. Optionally, in your package.json file, change the following properties, as they are shown in several places on the OS UI to the end user:
+   - `name`
+   - `description`
+   - `build.productName`
+   - `appId`
+     The `appId` is the reverse of your (website name) + (product name in Title Case).
+     For example, if your website is "awesome-app.com" and your product name is "Awesomeness", then your `appId` will be "com.awesome-app.Awesomeness".
+```json
+{
+    "name": "your-app-name",
+    "description": "Your app description",
+    "build": {
+        "productName": "Your App Name",
+        "appId": "com.awesome-app.Awesomeness"
+    }
+}
+```
+If you are using boilerplates like "electron-react-boilerplate", you will also need to change the "release/app/package.json" file with:
+   - `name`: Same as the main package.json
+   - `version`
+   - `description`: Same as the main package.json
+```json
+{
+    "name": "your-app-name",
+    "version": "1.0.0",
+    "description": "Your app description"
+}
+```
+Here’s an example Electron Builder configuration that follows best practices for creating Electron app on macOS, Windows, and Linux:
+
+```json
+{
+  "build": {
+    "productName": "Awesomeness",
+    "appId": "com.awesome-app.Awesomeness",
+
+    "mac": {
+      "identity":"Shinchan Nohara (AB8Y7TRS2P)",
+      "category": "public.app-category.developer-tools",
+      "target": [
+        {
+          "target": "default",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "artifactName": "${productName}.${ext}",
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "entitlements": "assets/entitlements.mac.plist",
+      "entitlementsInherit": "assets/entitlements.mac.plist",
+      "gatekeeperAssess": true,
+      "notarize": {
+        "teamId": "AB8Y7TRS2P"
+      }
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "${productName}.${ext}"
+    },
+    "linux": {
+      "artifactName": "${productName}-${arch}.${ext}",
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "Development"
+    }
+    // Rest of Electron Builder config
+  }
+}
+```    
+
+
+5. Create a "package-mac-signed.sh" file, paste the following content, and then replace placeholders with your credentials:
+```sh
+export APPLE_ID="shinchan@gmail.com" # Replace with your Apple ID email
+export APPLE_APP_SPECIFIC_PASSWORD="MY_APP_SPECIFIC_PASSWORD" # Replace with your App Specific Password, it looks like "dsjg-zqet-rpzp-nfzy"
+export APPLE_TEAM_ID="MY_TEAM_ID" # Replace with your Team ID, it looks like "AB8Y7TRS2P"
+export CSC_LINK="./certificate.p12" # Keep it as it is
+export CSC_KEY_PASSWORD="MY_CERTIFICATE_PASSWORD" # Replace with your Certificate Password
+npm run package:mac-signed
+```
+6. Place the "certificate.p12" file exported earlier in the root directory.
+7. Add the "certificate.p12" and "package-mac-signed.sh" to the .gitignore file, as these contain sensitive information that should not be shared in your GitHub repository.
+```
+package-mac-signed.sh
+certificate.p12
+```
+8. Run `bash package-mac-signed.sh`.
+9. Wait until you see the "notarization successful" message in the terminal - your app is ready for the world to see! Congratulations! 🎉
+
+### ❓ How to automate the above process using GitHub Actions?
+
+**1. GitHub Repository Setup**
+1. Create a new repository.
+2. Push your code.
+3. Encode the certificate and save the output in a secure place:
+```bash
+base64 -i certificate.p12
+```
+
+**2. Create S3 Bucket**
+1. Open AWS Console > S3.
+2. Click "Create bucket".
+3. Configure the bucket:
+```
+Bucket name: Enter a unique bucket name in kebab case (e.g., my_app_name-distribution)
+Block Public Access settings for this bucket: Uncheck "Block all public access"
+```
+4. Click on "Create bucket".
+5. Go to the bucket.
+6. Enable public access:
+   - Go to the "Permissions" tab.
+   - In the "Bucket policy" section, press the "Edit" button and paste the following policy (replace "<bucket-name>" with the bucket name you just created):
+```json
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowPublicRead",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "*"
+            },
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::mac-code-signing-example-distribution/*"
+        }
+    ]
+}
+```
+If you don't have them, then get AWS access key and secret key.
+
+**3. Configure GitHub Secrets**
+In your GitHub Repository, navigate to Settings > Secrets and variables > Actions and add the following secrets:
+```
+APPLE_ID                     # Your Apple ID email
+APPLE_APP_SPECIFIC_PASSWORD  # App-specific password
+APPLE_TEAM_ID                # Your Team ID
+CSC_BASE64_ENCODED           # Your Base64 encoded certificate created earlier
+CSC_KEY_PASSWORD             # Certificate password
+AWS_ACCESS_KEY_ID            # AWS access key
+AWS_SECRET_ACCESS_KEY        # AWS secret key
+```
+
+**4. Setup GitHub Actions**
+Create a `.github/workflows/package.yaml` file with the following contents:
+```yaml
+name: Package Mac
+
+on: [push, pull_request]
+
+jobs:
+
+  package-mac:
+    # notarization is taking too long, exit
+    timeout-minutes: 30
+    runs-on: macos-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Recreate certificate.p12 from Base64
+        run: echo "${{ secrets.ENCODED_CERTIFICATE }}" | base64 -d > certificate.p12
+
+      - name: Sync README
+        run: |
+          python .erb/scripts/sync-readme.py           
+
+      - name: npm install
+        run: |
+          npm install
+
+      - name: Package for macOS
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ./certificate.p12
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          npm run package:mac-signed
+
+      - name: Install packages needed for s3 upload
+        run: |
+          python -m pip install botasaurus boto3
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}        
+        run: |
+          python .erb/scripts/upload-to-s3.py
+```
+
+**5. Create Upload Script**
+Create a `scripts/upload-to-s3.py` file with the following content. Replace "MY_BUCKET_NAME" with your bucket name:
+```python
+from botasaurus import bt
+from botasaurus.env import get_os
+from botasaurus.task import task
+import os
+
+bucket_name = "MY_BUCKET_NAME"
+
+@task(output=None, parallel=4)
+def upload(data):
+    upload_file_name = bt.trim_and_collapse_spaces(os.path.basename(data)).replace(' ','')
+    
+    uploaded_file_url = bt.upload_to_s3(
+        data,
+        bucket_name,
+        os.environ['AWS_ACCESS_KEY_ID'],
+        os.environ['AWS_SECRET_ACCESS_KEY'],
+        upload_file_name,
+    )
+    
+    print(f"Visit {uploaded_file_url} to download the uploaded file.") # URL to share with users
+
+app_name = bt.read_json('./package.json')['build']['productName']
+operating_system = get_os()
+
+if operating_system == "mac":
+    upload(f"./release/build/{app_name}.dmg")
+elif operating_system == "windows":
+    upload(f"./release/build/{app_name}.exe")
+elif operating_system == "linux":
+    upload(
+        [
+            f"./release/build/{app_name}-amd64.deb",
+            f"./release/build/{app_name}-arm64.deb",
+            f"./release/build/{app_name}-x86_64.rpm",
+            f"./release/build/{app_name}-aarch64.rpm",
+        ]
+    )
+```
+
+**6. Deploy**
+1. Push the code to GitHub.
+2. Go to the Repository "Actions" tab to see the build process in action.
+3. Once successfully completed, the URL to the uploaded file will be displayed in the logs of the "Upload to S3" section.
+4. Share the URL with your users to distribute the signed and notarized executable. Hurray! 🎉

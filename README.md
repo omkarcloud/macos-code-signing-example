@@ -286,14 +286,13 @@ AWS_SECRET_ACCESS_KEY        # AWS secret key
 **4. Setup GitHub Actions**
 Create a `.github/workflows/package.yaml` file with the following contents:
 ```yaml
-name: Package Mac
+name: Package
 
 on: [push, pull_request]
 
 jobs:
-
   package-mac:
-    # notarization is taking too long, exit
+    # Notarization is taking too long, exit
     timeout-minutes: 30
     runs-on: macos-latest
     steps:
@@ -333,6 +332,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
           python .erb/scripts/upload-to-s3.py
+
   package-windows:
     timeout-minutes: 30
     runs-on: windows-latest
@@ -365,6 +365,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
           python .erb/scripts/upload-to-s3.py
+
   package-linux:
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -396,7 +397,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
-          python .erb/scripts/upload-to-s3.py                    
+          python .erb/scripts/upload-to-s3.py                  
 ```
 
 **5. Create Upload Script**

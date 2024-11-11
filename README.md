@@ -7,7 +7,7 @@
 2. Install Xcode and Apple Developer App from the App Store.
 3. Open the Apple Developer App and subscribe to the $99 Apple Developer Program, providing accurate details as per your *National ID*.
 4. Wait until you receive the Apple Developer Program Welcome Email, which may take up to 48 hours.
-!
+
 **2. Get Required Credentials**
 
 *App Specific Password:*
@@ -309,10 +309,6 @@ jobs:
       - name: Recreate certificate.p12 from Base64
         run: echo "${{ secrets.ENCODED_CERTIFICATE }}" | base64 -d > certificate.p12
 
-      - name: Sync README
-        run: |
-          python .erb/scripts/sync-readme.py           
-
       - name: npm install
         run: |
           npm install
@@ -333,10 +329,74 @@ jobs:
 
       - name: Upload to S3
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}        
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
           python .erb/scripts/upload-to-s3.py
+  package-windows:
+    timeout-minutes: 30
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: npm install
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package
+
+      - name: Install botasaurus package
+        run: |
+          python -m pip install botasaurus boto3
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
+        run: |
+          python .erb/scripts/upload-to-s3.py
+  package-linux:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js and NPM
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: npm install
+        run: |
+          npm install
+
+      - name: Package
+        run: |
+          npm run package
+
+      - name: Install botasaurus package
+        run: |
+          python -m pip install botasaurus boto3
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
+        run: |
+          python .erb/scripts/upload-to-s3.py                    
 ```
 
 **5. Create Upload Script**
@@ -349,7 +409,7 @@ import os
 
 bucket_name = "MY_BUCKET_NAME"
 
-@task(output=None, parallel=4)
+@task(output=None, raise_exception=True, close_on_crash=True, parallel=4)
 def upload(data):
     upload_file_name = bt.trim_and_collapse_spaces(os.path.basename(data)).replace(' ','')
     

@@ -1,6 +1,6 @@
-# Mac Signing And Notarisation Demo
+# Mac Signing and Notarization Demo
 
-### ❓ How to sign and notarize an Electron App for Mac OS?
+### ❓ How to sign and notarize an Electron App for macOS?
 
 **1. Initial Setup**
 1. Create an Apple Account if you don't have one.
@@ -35,10 +35,10 @@
 - Sign and notarize the provided sample app to understand the process. You can later follow the steps in the next section to sign and notarize your own application.
 
 *Steps:*
-1. Setup the sample app:
+1. Set up the sample app:
 ```
-git clone https://github.com/omkarcloud/mac-code-signing-example
-cd mac-code-signing-example
+git clone https://github.com/omkarcloud/macos-code-signing-example
+cd macos-code-signing-example
 npm install
 ```
 2. Ensure you have the latest version of Electron Builder installed to avoid any errors:
@@ -62,20 +62,19 @@ npm run package
 
 **4. Signing Your Own Application**
 
-
 1. Ensure you have the latest version of Electron Builder installed to avoid any errors:
 
 ```
 npm install --save-dev electron-builder@latest
 ```
-1. Ensure your "entitlements.mac.plist" has the following entitlements for Electron to function:
+2. Ensure your "entitlements.mac.plist" has the following entitlements for Electron to function:
 ```xml
 <key>com.apple.security.cs.allow-jit</key>
 <true/>
 <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
 <true/>
 ```
-2. Ensure that in your "package.json", the Electron "build" config's "mac" section looks like the following for creating a universal build. Using a universal build for installation will avoid confusion among Intel and M-series Mac users:
+3. Ensure that in your "package.json", the Electron "build" config's "mac" section looks like the following for creating a universal build. Using a universal build for installation will avoid confusion among Intel and M-series Mac users:
 ```json
 {
   "mac": {
@@ -96,7 +95,7 @@ npm install --save-dev electron-builder@latest
 }
 ```
 
-3. In your package.json scripts, ensure there is a script to build the Mac DMG:
+4. In your package.json scripts, ensure there is a script to build the Mac DMG:
 ```json
 {
   "scripts": {
@@ -113,7 +112,7 @@ Also, add the following script, which will help you create an unsigned build, wh
 }
 ```
 Replace ANY_PRE_BUILD_STEPS and ANY_POST_BUILD_STEPS with your pre and post-build steps, if you have any. If you don't have any, remove them.
-4. Optionally, in your package.json file, change the following properties, as they are shown in several places on the OS UI to the end user:
+5. Optionally, in your package.json file, change the following properties, as they are shown in several places on the OS UI to the end user:
    - `name`
    - `description`
    - `build.productName`
@@ -141,7 +140,7 @@ If you are using boilerplates like "electron-react-boilerplate", you will also n
     "description": "Your app description"
 }
 ```
-Here’s an example Electron Builder configuration that follows best practices for creating Electron app on macOS, Windows, and Linux:
+Here's an example Electron Builder configuration that follows best practices for creating an Electron app on macOS, Windows, and Linux:
 
 ```json
 {
@@ -212,7 +211,7 @@ Here’s an example Electron Builder configuration that follows best practices f
 ```    
 
 
-5. Create a "package-mac-signed.sh" file, paste the following content, and then replace placeholders with your credentials:
+6. Create a "package-mac-signed.sh" file, paste the following content, and then replace placeholders with your credentials:
 ```sh
 export APPLE_ID="username@gmail.com" # Replace with your Apple ID email
 export APPLE_APP_SPECIFIC_PASSWORD="MY_APP_SPECIFIC_PASSWORD" # Replace with your App Specific Password, it looks like "dsjg-zqet-rpzp-nfzy"
@@ -221,14 +220,14 @@ export CSC_LINK="./certificate.p12" # Keep it as it is
 export CSC_KEY_PASSWORD="MY_CERTIFICATE_PASSWORD" # Replace with your Certificate Password
 npm run package
 ```
-6. Place the "certificate.p12" file exported earlier in the root directory.
-7. Add the "certificate.p12" and "package-mac-signed.sh" to the .gitignore file, as these contain sensitive information that should not be shared in your GitHub repository.
+7. Place the "certificate.p12" file exported earlier in the root directory.
+8. Add the "certificate.p12" and "package-mac-signed.sh" to the .gitignore file, as these contain sensitive information that should not be shared in your GitHub repository.
 ```
 package-mac-signed.sh
 certificate.p12
 ```
-8. Run `bash package-mac-signed.sh`.
-9. Wait until you see the "notarization successful" message in the terminal - your app is ready for the world to see! Congratulations! 🎉
+9. Run `bash package-mac-signed.sh`.
+10. Wait until you see the "notarization successful" message in the terminal - your app is ready for the world to see! Congratulations! 🎉
 
 ### ❓ How to automate the above process using GitHub Actions?
 
@@ -245,7 +244,7 @@ base64 -i certificate.p12
 2. Click "Create bucket".
 3. Configure the bucket:
 ```
-Bucket name: Enter a unique bucket name in kebab case (e.g., my_app_name-distribution)
+Bucket name: Enter a unique bucket name in kebab case (e.g., my-app-name-distribution)
 Block Public Access settings for this bucket: Uncheck "Block all public access"
 ```
 4. Click on "Create bucket".
@@ -264,7 +263,7 @@ Block Public Access settings for this bucket: Uncheck "Block all public access"
                 "AWS": "*"
             },
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::mac-code-signing-example-distribution/*"
+            "Resource": "arn:aws:s3:::<bucket-name>/*"
         }
     ]
 }
@@ -275,7 +274,7 @@ If you don't have them, then get AWS access key and secret key.
 In your GitHub Repository, navigate to Settings > Secrets and variables > Actions and add the following secrets:
 ```
 APPLE_ID                     # Your Apple ID email
-APPLE_APP_SPECIFIC_PASSWORD  # App-specific password
+APPLE_APP_SPECIFIC_PASSWORD  # App Specific password
 APPLE_TEAM_ID                # Your Team ID
 CSC_BASE64_ENCODED           # Your Base64 encoded certificate created earlier
 CSC_KEY_PASSWORD             # Certificate password
@@ -283,7 +282,7 @@ AWS_ACCESS_KEY_ID            # AWS access key
 AWS_SECRET_ACCESS_KEY        # AWS secret key
 ```
 
-**4. Setup GitHub Actions**
+**4. Set up GitHub Actions**
 Create a `.github/workflows/package.yaml` file with the following contents:
 ```yaml
 name: Package
@@ -322,7 +321,7 @@ jobs:
         run: |
           npm run package
 
-      - name: Install packages needed for s3 upload
+      - name: Install packages needed for S3 upload
         run: |
           python -m pip install botasaurus boto3
 
@@ -388,7 +387,7 @@ jobs:
         run: |
           npm run package
 
-      - name: Install botasaurus package
+      - name: Install packages needed for S3 upload
         run: |
           python -m pip install botasaurus boto3
 

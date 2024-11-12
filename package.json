@@ -43,8 +43,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
-    "package:mac-signed": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --mac --universal --publish never && npm run build:dll",
-    "package:mac-unsigned": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build -c.mac.identity=null -c.mac.gatekeeperAssess=false -c.mac.notarize=false --mac --universal --publish never && npm run build:dll",
+    "package:mac-unsigned": "webpack --config ./.erb/configs/webpack.config.main.dev.ts && ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build -c.mac.identity=null --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "prestart": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.dev.ts",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run prestart && npm run start:renderer",
@@ -135,7 +134,7 @@
     "css-minimizer-webpack-plugin": "^5.0.1",
     "detect-port": "^1.5.1",
     "electron": "^31.3.0",
-    "electron-builder": "^24.13.3",
+    "electron-builder": "^25.1.8",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
     "eslint": "^8.49.0",
@@ -187,7 +186,6 @@
       "package.json"
     ],
     "mac": {
-      "identity": "FirstName LastName (MY_TEAM_ID)",
       "category": "public.app-category.developer-tools",
       "target": [
         {
@@ -202,10 +200,7 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": true,
-      "notarize": {
-        "teamId": "MY_TEAM_ID"
-      }
+      "gatekeeperAssess": false
     },
     "dmg": {
       "contents": [

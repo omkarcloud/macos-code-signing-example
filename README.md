@@ -41,22 +41,33 @@ git clone https://github.com/omkarcloud/mac-code-signing-example
 cd mac-code-signing-example
 npm install
 ```
-2. Place the "certificate.p12" file exported earlier in the root directory.
-3. Open "package-mac-signed.sh" and replace placeholders with your credentials:
+2. Ensure you have the latest version of Electron Builder installed to avoid any errors:
+
+```
+npm install --save-dev electron-builder@latest
+```
+3. Place the "certificate.p12" file exported earlier in the root directory.
+4. Open "package-mac-signed.sh" and replace placeholders with your credentials:
 ```bash
-export APPLE_ID="shinchan@gmail.com" # Replace with your Apple ID email
+export APPLE_ID="username@gmail.com" # Replace with your Apple ID email
 export APPLE_APP_SPECIFIC_PASSWORD="MY_APP_SPECIFIC_PASSWORD" # Replace with your App Specific Password, it looks like "dsjg-zqet-rpzp-nfzy"
 export APPLE_TEAM_ID="MY_TEAM_ID" # Replace with your Team ID, it looks like "AB8Y7TRS2P"
 export CSC_LINK="./certificate.p12" # Keep it as it is
 export CSC_KEY_PASSWORD="MY_CERTIFICATE_PASSWORD" # Replace with your Certificate Password
-npm run package:mac-signed
+npm run package
 ```
-4. Run `bash package-mac-signed.sh`.
-5. Once you see the "notarization successful" message in the terminal, you can now distribute the ".dmg" via the internet to your users without facing any security warnings. Hurray! 🎉
-6. Now, let's proceed to sign and notarize your own custom application using Electron Builder.
+5. Run `bash package-mac-signed.sh`.
+6. Once you see the "notarization successful" message in the terminal, you can now distribute the ".dmg" via the internet to your users without facing any security warnings. Hurray! 🎉
+7. Now, let's proceed to sign and notarize your own custom application using Electron Builder.
 
 **4. Signing Your Own Application**
 
+
+1. Ensure you have the latest version of Electron Builder installed to avoid any errors:
+
+```
+npm install --save-dev electron-builder@latest
+```
 1. Ensure your "entitlements.mac.plist" has the following entitlements for Electron to function:
 ```xml
 <key>com.apple.security.cs.allow-jit</key>
@@ -68,7 +79,6 @@ npm run package:mac-signed
 ```json
 {
   "mac": {
-    "identity": "FirstName LastName (MY_TEAM_ID)",
     "category": "public.app-category.developer-tools",
     "target": [
       {
@@ -81,22 +91,16 @@ npm run package:mac-signed
     "hardenedRuntime": true,
     "entitlements": "assets/entitlements.mac.plist",
     "entitlementsInherit": "assets/entitlements.mac.plist",
-    "gatekeeperAssess": true,
-    "notarize": {
-      "teamId": "MY_TEAM_ID"
-    }
+    "gatekeeperAssess": false
   }
 }
 ```
-Remember to:
-- Change the FirstName and LastName that you provided when enrolling in the Apple Developer Program.
-- Replace MY_TEAM_ID with your Team ID.
 
-3. In your package.json scripts, add a new script to build the universal Mac dmg for production:
+3. In your package.json scripts, ensure there is a script to build the Mac DMG:
 ```json
 {
   "scripts": {
-   "package:mac-signed": "ANY_PRE_BUILD_STEPS && electron-builder build --mac --universal --publish never && ANY_POST_BUILD_STEPS",
+   "package": "ANY_PRE_BUILD_STEPS && electron-builder build --publish never && ANY_POST_BUILD_STEPS",
   }
 }
 ```
@@ -104,7 +108,7 @@ Also, add the following script, which will help you create an unsigned build, wh
 ```json 
 {
   "scripts": {
-  "package:mac-unsigned": "ANY_PRE_BUILD_STEPS && electron-builder build -c.mac.identity=null -c.mac.gatekeeperAssess=false -c.mac.notarize=false --mac --universal --publish never && ANY_POST_BUILD_STEPS",
+  "package:mac-unsigned": "ANY_PRE_BUILD_STEPS && electron-builder build -c.mac.identity=null --publish never && ANY_POST_BUILD_STEPS",
   }
 }
 ```
@@ -146,7 +150,6 @@ Here’s an example Electron Builder configuration that follows best practices f
     "appId": "com.awesome-app.Awesomeness",
 
     "mac": {
-      "identity":"Shinchan Nohara (AB8Y7TRS2P)",
       "category": "public.app-category.developer-tools",
       "target": [
         {
@@ -161,10 +164,7 @@ Here’s an example Electron Builder configuration that follows best practices f
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": true,
-      "notarize": {
-        "teamId": "AB8Y7TRS2P"
-      }
+      "gatekeeperAssess": false
     },
     "dmg": {
       "contents": [
@@ -214,12 +214,12 @@ Here’s an example Electron Builder configuration that follows best practices f
 
 5. Create a "package-mac-signed.sh" file, paste the following content, and then replace placeholders with your credentials:
 ```sh
-export APPLE_ID="shinchan@gmail.com" # Replace with your Apple ID email
+export APPLE_ID="username@gmail.com" # Replace with your Apple ID email
 export APPLE_APP_SPECIFIC_PASSWORD="MY_APP_SPECIFIC_PASSWORD" # Replace with your App Specific Password, it looks like "dsjg-zqet-rpzp-nfzy"
 export APPLE_TEAM_ID="MY_TEAM_ID" # Replace with your Team ID, it looks like "AB8Y7TRS2P"
 export CSC_LINK="./certificate.p12" # Keep it as it is
 export CSC_KEY_PASSWORD="MY_CERTIFICATE_PASSWORD" # Replace with your Certificate Password
-npm run package:mac-signed
+npm run package
 ```
 6. Place the "certificate.p12" file exported earlier in the root directory.
 7. Add the "certificate.p12" and "package-mac-signed.sh" to the .gitignore file, as these contain sensitive information that should not be shared in your GitHub repository.
@@ -312,7 +312,7 @@ jobs:
         run: |
           npm install
 
-      - name: Package for macOS
+      - name: Package
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -320,7 +320,7 @@ jobs:
           CSC_LINK: ./certificate.p12
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
         run: |
-          npm run package:mac-signed
+          npm run package
 
       - name: Install packages needed for s3 upload
         run: |

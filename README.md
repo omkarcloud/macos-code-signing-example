@@ -446,3 +446,4 @@ elif operating_system == "linux":
 2. Go to the Repository "Actions" tab to see the build process in action.
 3. Once successfully completed, the URL to the uploaded file will be displayed in the logs of the "Upload to S3" section.
 4. Share the URL with your users to distribute the signed and notarized executable. Hurray! 🎉
+

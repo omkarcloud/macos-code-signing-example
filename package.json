@@ -43,7 +43,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
-    "package-publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build  --publish always && npm run build:dll",
+    "package:publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build  --publish always && npm run build:dll",
     "package:mac-unsigned": "webpack --config ./.erb/configs/webpack.config.main.dev.ts && ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build -c.mac.identity=null --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "prestart": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.dev.ts",

@@ -283,11 +283,11 @@ AWS_SECRET_ACCESS_KEY        # AWS secret key
 ```
 Replace "your-s3-bucket-name" with the name of your S3 bucket.
 
-2. Add a new script called "package-publish" to the "scripts" section of your "package.json" file:
+2. Add a new script called "package:publish" to the "scripts" section of your "package.json" file:
 ```json
 {
   "scripts": {
-    "package-publish": "ANY_PRE_BUILD_STEPS && electron-builder build --publish always && ANY_POST_BUILD_STEPS"
+    "package:publish": "ANY_PRE_BUILD_STEPS && electron-builder build --publish always && ANY_POST_BUILD_STEPS"
   }
 }
 ```
@@ -329,7 +329,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
-          npm run package-publish
+          npm run package:publish
 
 
   package-windows:
@@ -352,7 +352,7 @@ jobs:
 
       - name: Package and Upload to S3
         run: |
-          npm run package-publish
+          npm run package:publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
@@ -377,7 +377,7 @@ jobs:
 
       - name: Package and Upload to S3
         run: |
-          npm run package-publish
+          npm run package:publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}               

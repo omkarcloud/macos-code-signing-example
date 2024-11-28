@@ -239,36 +239,25 @@ certificate.p12
 base64 -i certificate.p12
 ```
 
-**2. Create S3 Bucket**
-1. Open AWS Console > S3.
+**2. Create an S3 Bucket**
+1. Open the AWS Console > S3.
 2. Click "Create bucket".
 3. Configure the bucket:
 ```
 Bucket name: Enter a unique bucket name in kebab case (e.g., my-app-name-distribution)
+Object Ownership: Select ACLs enabled
 Block Public Access settings for this bucket: Uncheck "Block all public access"
 ```
+*Important Note:*
+Ensure that **Object Ownership** is set to **"ACLs enabled"** because Electron Builder requires this setting to successfully upload files. Without it, you will encounter the following error:
+
+**"The Bucket does not allow ACLs."**  
+
+![ACL Error](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/acl-error.png)
+
 4. Click on "Create bucket".
-5. Go to the bucket.
-6. Enable public access:
-   - Go to the "Permissions" tab.
-   - In the "Bucket policy" section, press the "Edit" button and paste the following policy (replace "<bucket-name>" with the bucket name you just created):
-```json
-{
-    "Version": "2008-10-17",
-    "Statement": [
-        {
-            "Sid": "AllowPublicRead",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "*"
-            },
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::<bucket-name>/*"
-        }
-    ]
-}
-```
-If you don't have them, then get AWS access key and secret key.
+
+5. If you don't have an AWS access key and secret key, get them.
 
 **3. Configure GitHub Secrets**
 In your GitHub Repository, navigate to Settings > Secrets and variables > Actions and add the following secrets:
@@ -276,13 +265,36 @@ In your GitHub Repository, navigate to Settings > Secrets and variables > Action
 APPLE_ID                     # Your Apple ID email
 APPLE_APP_SPECIFIC_PASSWORD  # App Specific password
 APPLE_TEAM_ID                # Your Team ID
-CSC_BASE64_ENCODED           # Your Base64 encoded certificate created earlier
+CSC_LINK                     # Your Base64 encoded certificate created earlier
 CSC_KEY_PASSWORD             # Certificate password
 AWS_ACCESS_KEY_ID            # AWS access key
 AWS_SECRET_ACCESS_KEY        # AWS secret key
 ```
 
-**4. Set up GitHub Actions**
+**4. Configure Electron Builder**
+1. In your "package.json" file, add the following to the Electron "build" configuration:
+```json
+"build": {
+  "publish": {
+    "provider": "s3",
+    "bucket": "your-s3-bucket-name"
+  }
+}
+```
+Replace "your-s3-bucket-name" with the name of your S3 bucket.
+
+2. Add a new script called "package-publish" to the "scripts" section of your "package.json" file:
+```json
+{
+  "scripts": {
+    "package-publish": "ANY_PRE_BUILD_STEPS && electron-builder build --publish always && ANY_POST_BUILD_STEPS"
+  }
+}
+```
+
+Replace ANY_PRE_BUILD_STEPS and ANY_POST_BUILD_STEPS with your pre and post-build steps, if you have any. If you don't have any, remove them.
+
+**5. Set up GitHub Actions**
 Create a `.github/workflows/package.yaml` file with the following contents:
 ```yaml
 name: Package
@@ -303,34 +315,22 @@ jobs:
         with:
           node-version: 20
           cache: npm
- 
-      - name: Recreate certificate.p12 from Base64
-        run: echo "${{ secrets.CSC_BASE64_ENCODED }}" | base64 -d > certificate.p12
-
       - name: npm install
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          CSC_LINK: ./certificate.p12
+          CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: |
-          npm run package
-
-      - name: Install packages needed for S3 upload
-        run: |
-          python -m pip install botasaurus boto3
-
-      - name: Upload to S3
-        env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
         run: |
-          python .erb/scripts/upload-to-s3.py
+          npm run package-publish
+
 
   package-windows:
     timeout-minutes: 30
@@ -350,20 +350,12 @@ jobs:
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         run: |
-          npm run package
-
-      - name: Install botasaurus package
-        run: |
-          python -m pip install botasaurus boto3
-
-      - name: Upload to S3
+          npm run package-publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
-        run: |
-          python .erb/scripts/upload-to-s3.py
 
   package-linux:
     timeout-minutes: 30
@@ -383,67 +375,24 @@ jobs:
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         run: |
-          npm run package
-
-      - name: Install packages needed for S3 upload
-        run: |
-          python -m pip install botasaurus boto3
-
-      - name: Upload to S3
+          npm run package-publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
-        run: |
-          python .erb/scripts/upload-to-s3.py                  
-```
-
-**5. Create Upload Script**
-Create a `scripts/upload-to-s3.py` file with the following content. Replace "MY_BUCKET_NAME" with your bucket name:
-```python
-from botasaurus import bt
-from botasaurus.env import get_os
-from botasaurus.task import task
-import os
-
-bucket_name = "MY_BUCKET_NAME"
-
-@task(output=None, raise_exception=True, close_on_crash=True, parallel=4)
-def upload(data):
-    upload_file_name = bt.trim_and_collapse_spaces(os.path.basename(data)).replace(' ','')
-    
-    uploaded_file_url = bt.upload_to_s3(
-        data,
-        bucket_name,
-        os.environ['AWS_ACCESS_KEY_ID'],
-        os.environ['AWS_SECRET_ACCESS_KEY'],
-        upload_file_name,
-    )
-    
-    print(f"Visit {uploaded_file_url} to download the uploaded file.") # URL to share with users
-
-app_name = bt.read_json('./package.json')['build']['productName']
-operating_system = get_os()
-
-if operating_system == "mac":
-    upload(f"./release/build/{app_name}.dmg")
-elif operating_system == "windows":
-    upload(f"./release/build/{app_name}.exe")
-elif operating_system == "linux":
-    upload(
-        [
-            f"./release/build/{app_name}-amd64.deb",
-            f"./release/build/{app_name}-arm64.deb",
-            f"./release/build/{app_name}-x86_64.rpm",
-            f"./release/build/{app_name}-aarch64.rpm",
-        ]
-    )
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}               
 ```
 
 **6. Deploy**
 1. Push the code to GitHub.
-2. Go to the Repository "Actions" tab to see the build process in action.
-3. Once successfully completed, the URL to the uploaded file will be displayed in the logs of the "Upload to S3" section.
-4. Share the URL with your users to distribute the signed and notarized executable. Hurray! 🎉
+2. Go to the repository's "Actions" tab to see the build process in action.
+3. After a successful build, the installer files will be found in your S3 bucket. These files will be publicly accessible in the following format:
+```
+https://<your-bucket-name>.s3.amazonaws.com/<your-product-name>.dmg
+```
 
+Examples:
+  - https://awesome-app-distribution.s3.amazonaws.com/ElectronReact.dmg
+  - https://awesome-app-distribution.s3.amazonaws.com/Awesome+App.dmg
+
+4. Share the URL with your users to download the signed and notarized executable. Hurray! 🎉

@@ -16,15 +16,11 @@ jobs:
         with:
           node-version: 20
           cache: npm
- 
-      # - name: Recreate certificate.p12 from Base64
-      #   run: echo "${{ secrets.CSC_BASE64_ENCODED }}" | base64 -d > certificate.p12
-
       - name: npm install
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -55,7 +51,7 @@ jobs:
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         run: |
           npm run package-publish
         env:
@@ -80,7 +76,7 @@ jobs:
         run: |
           npm install
 
-      - name: Package
+      - name: Package and Upload to S3
         run: |
           npm run package-publish
         env:

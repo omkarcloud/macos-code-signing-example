@@ -396,3 +396,105 @@ Examples:
   - https://awesome-app-distribution.s3.amazonaws.com/Awesome+App.dmg
 
 4. Share the URL with your users to download the signed and notarized executable. Hurray! 🎉
+
+### ❓ How to Set Up Auto Update for my Electron App?
+
+Electron Builder's auto-update feature makes life much easier for your users by allowing you to push updates without requiring them to manually download and install the new version. 
+
+It's a must-have feature for any Electron app.
+
+Here's how to set it up:
+
+---
+
+*Prerequisites:*
+- You need to have a workflow in place for pushing your app's installer files to an S3 bucket. If you've followed the earlier FAQ, this should already be set up.
+
+---
+
+*Step-by-Step Guide:*
+
+1. Ensure you have the latest version of Electron Updater:
+
+```
+npm install --save-dev electron-updater@latest
+```
+
+2. In `src/main/main.ts`, add the following code to check for updates:
+
+```javascript
+import { autoUpdater } from 'electron-updater';
+
+class AppUpdater {
+  constructor() {
+    // Disable automatic downloading of updates
+    autoUpdater.autoDownload = false;
+    // Enable automatic installation of updates on the next computer restart
+    autoUpdater.autoInstallOnAppQuit = true;
+
+    try {
+      // Start listening for update events
+      this.listenEvents();
+      // Check for available updates
+      autoUpdater.checkForUpdates();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async listenEvents() {
+    // Event listener for when the app is checking for updates
+    autoUpdater.on('checking-for-update', () => {
+      console.log('Checking for updates...');
+    });
+
+    // Event listener for when an update is available
+    autoUpdater.on('update-available', (info) => {
+      console.log('Update available:', info);
+      // Download the latest version of the update
+      autoUpdater.downloadUpdate();
+    });
+
+    // Event listener for when no update is available
+    autoUpdater.on('update-not-available', (info) => {
+      console.log('Update not available:', info);
+    });
+
+    // Event listener for when an error occurs during the update process
+    autoUpdater.on('error', (err) => {
+      console.log('Error in auto-updater:', err);
+    });
+
+    // Event listener for when an update has been downloaded
+    autoUpdater.on('update-downloaded', (info) => {
+      console.log('Update downloaded:', info);
+    });
+  }
+}
+```
+
+3. For the best app performance, call the `AppUpdater` constructor after all initializations are done, the main window is created, and your app is ready:
+
+```javascript
+new AppUpdater();
+```
+
+![Auto Update Position](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/auto-update-position.png)
+
+4. Now, Update your app version in the `release/app/package.json` file:
+
+```json
+{
+  "name": "my-awesome-app",
+  "version": "1.1.0" // Update this to your new version
+}
+```
+
+5. Push your changes to the repository.
+
+6. That's it! Now, whenever you push a new version:
+  - The GitHub Workflow will automatically build and push the new version to your S3 bucket.
+  - Your app will automatically check for updates and download them in the background.
+  - When the user restarts their system, the new version will be automatically installed.
+
+![Auto Update](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/auto-update.png)

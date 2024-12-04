@@ -277,11 +277,11 @@ AWS_SECRET_ACCESS_KEY        # AWS secret key
 "build": {
   "publish": {
     "provider": "s3",
-    "bucket": "your-s3-bucket-name"
+    "bucket": "YOUR_S3_BUCKET_NAME"
   }
 }
 ```
-Replace "your-s3-bucket-name" with the name of your S3 bucket.
+Replace "YOUR_S3_BUCKET_NAME" with the name of your S3 bucket.
 
 2. Add a new script called "package:publish" to the "scripts" section of your "package.json" file:
 ```json

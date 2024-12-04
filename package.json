@@ -253,7 +253,7 @@
     ],
     "publish": {
       "provider": "s3",
-      "bucket": "awesome-app-releases"
+      "bucket": "YOUR_S3_BUCKET_NAME"
     }
   },
   "collective": {

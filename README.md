@@ -1,6 +1,6 @@
 # Mac Signing and Notarization Demo
 
-<a href="https://www.youtube.com/watch?v=hYBLfjT57hU" target="_blank">
+<a href="https://www.youtube.com/watch?v=hYBLfjT57hU" rel="noreferrer noopener" target="_blank">
   <img src="https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png" alt="Macos Code Signing Example Video">
 </a>
 <!-- 

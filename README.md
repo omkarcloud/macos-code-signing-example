@@ -1,6 +1,10 @@
 # Mac Signing and Notarization Demo
 
-[![Macos Code Signing Example Video](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png)](https://www.youtube.com/watch?v=hYBLfjT57hU){:target="_blank"}
+<a href="https://www.youtube.com/watch?v=hYBLfjT57hU" target="_blank">
+  <img src="https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png" alt="Macos Code Signing Example Video">
+</a>
+<!-- 
+[![Macos Code Signing Example Video](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png)](https://www.youtube.com/watch?v=hYBLfjT57hU){:target="_blank"} -->
 
 
 ### ❓ How to sign and notarize an Electron App for macOS?

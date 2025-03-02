@@ -16,11 +16,19 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
       - name: npm install
         run: |
           npm install
 
-      - name: Package and Upload to S3
+      # Use the `nick-fields/retry` (https://github.com/nick-fields/retry) to retry the command
+      # in case the code signing fails due to network errors.
+      - uses: nick-fields/retry@v2
+        name: Package and Upload to S3
+        with:
+          timeout_minutes: 30
+          max_attempts: 2
+          command: npm run package:publish
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -28,15 +36,11 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
-        run: |
-          npm run package:publish
-
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   package-windows:
     timeout-minutes: 30
     runs-on: windows-latest
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
@@ -56,12 +60,11 @@ jobs:
           npm run package:publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}        
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   package-linux:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
@@ -81,4 +84,4 @@ jobs:
           npm run package:publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}               
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

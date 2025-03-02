@@ -16,8 +16,6 @@
 
 ![Apple Developer Program Subscription](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/apple-developer-program.png)
 
-*Apple Developer Program subscription page*
-
 **2. Get Required Credentials**
 
 *App Specific Password:*
@@ -255,9 +253,9 @@ certificate.p12
 *Your signed app is now ready for distribution*
 
 ### ❓ How to automate the above process using GitHub Actions?
-
 **1. GitHub Repository Setup**
 1. Create a new repository.
+![new-repo-code-signing](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/new-repo-code-signing.png)
 2. Push your code.
 3. Encode the certificate and save the output in a secure place:
 ```bash
@@ -266,10 +264,12 @@ base64 -i certificate.p12
 
 **2. Create an S3 Bucket**
 1. Open the AWS Console > S3.
+![aws-s3](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/aws-s3.png)  
 2. Click "Create bucket".
+![create-bucket](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/create-bucket.png)  
 3. Configure the bucket:
 ```
-Bucket name: Enter a unique bucket name. Conventionally, this name matches your product's name in kebab case. For example, if your product is named "Chess Master," your bucket name will be `chess-master`.
+Bucket name: Enter a unique bucket name. Conventionally, this name matches your product's name in kebab case. For example, if your product's name is "Chess Master," your bucket name will be `chess-master`.
 Object Ownership: Select ACLs enabled
 Block Public Access settings for this bucket: Uncheck "Block all public access"
 ```
@@ -281,11 +281,9 @@ Ensure that **Object Ownership** is set to **"ACLs enabled"** because Electron B
 ![ACL Error](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/acl-error.png)
 
 4. Click on "Create bucket".
-
 ![S3 Bucket Creation](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/s3-bucket-setup.png)
-*Creating an S3 bucket for app distribution*
 
-5. If you don't have an AWS access key and secret key, get them.
+5. If you don't have an AWS access key and secret key, create them through the IAM service as described in [AWS documentation here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
 
 **3. Configure GitHub Secrets**
 In your GitHub Repository, navigate to Settings > Secrets and variables > Actions and add the following secrets:
@@ -300,7 +298,6 @@ AWS_SECRET_ACCESS_KEY        # AWS secret key
 ```
 
 ![GitHub Secrets](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-secrets.png)
-*Adding secrets to your GitHub repository*
 
 **4. Configure Electron Builder**
 1. In your "package.json" file, add the following to the Electron "build" configuration:
@@ -417,7 +414,7 @@ jobs:
 
 
 **6. Deploy**
-1. Push the code to GitHub repository.
+1. Push the code to your GitHub repository.
 2. Go to the repository's "Actions" tab to see the build process in action.
 ![GitHub Actions Workflow](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-actions.png)
 3. After a successful build, the installer files will be found in your S3 bucket. These files will be publicly accessible in the following format:

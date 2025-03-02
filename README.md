@@ -255,7 +255,7 @@ certificate.p12
 ### ❓ How to automate the above process using GitHub Actions?
 **1. GitHub Repository Setup**
 1. Create a new repository.
-![new-repo-code-signing](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/new-repo-code-signing.jpg)
+![new-repo-code-signing](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/new-repo-code-signing.png)
 2. Push your code.
 3. Encode the certificate and save the output in a secure place:
 ```bash
@@ -264,9 +264,9 @@ base64 -i certificate.p12
 
 **2. Create an S3 Bucket**
 1. Open the AWS Console > S3.
-![aws-s3](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/aws-s3.jpg)  
+![aws-s3](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/aws-s3.png)  
 2. Click "Create bucket".
-![create-bucket](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/create-bucket.jpg)  
+![create-bucket](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/create-bucket.png)  
 3. Configure the bucket:
 ```
 Bucket name: Enter a unique bucket name. Conventionally, this name matches your product's name in kebab case. For example, if your product's name is "Chess Master," your bucket name will be `chess-master`.

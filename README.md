@@ -14,7 +14,7 @@
 3. Open the Apple Developer App and subscribe to the $99 Apple Developer Program, providing accurate details as per your *National ID*.
 4. Wait until you receive the Apple Developer Program Welcome Email, which may take up to 48 hours.
 
-![Apple Developer Program Subscription](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/apple-developer-program.png)
+![Apple Developer Program Subscription](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/apple-developer-program.jpg)
 
 **2. Get Required Credentials**
 
@@ -23,7 +23,7 @@
 2. Sign in to your Apple Account.
 3. Create a new App Specific Password and store it securely.
 
-![App Specific Password Creation](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/app-specific-password.png)
+![App Specific Password Creation](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/app-specific-password.jpg)
 *Creating an app-specific password in Apple Account settings*
 
 *Developer ID Application Certificate:*
@@ -35,13 +35,13 @@
    - Name the file "certificate".
    - Save "certificate.p12" in a secure location.
 
-![Export Certificate](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/export-certificate.png)
+![Export Certificate](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/export-certificate.jpg)
 
 *Team ID:*
 1. Visit https://developer.apple.com/account.
 2. Scroll to the "Membership details" Card and copy the "Team ID" to a secure place.
 
-![Apple Developer Team ID](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/team-id.png)
+![Apple Developer Team ID](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/team-id.jpg)
 *Finding your Team ID in the Apple Developer Portal*
 
 **3. Sign and Notarize Sample Application**
@@ -75,7 +75,7 @@ npm run package
 5. Run `bash package-mac-signed.sh`.
 6. Once you see the "notarization successful" message in the terminal, you can now distribute the ".dmg" via the internet to your users without facing any security warnings. Hurray! 🎉
 
-![Notarization Success](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/notarization-success.png)
+![Notarization Success](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/notarization-success.jpg)
 *Successful notarization message in terminal*
 
 7. Now, let's proceed to sign and notarize your own custom application using Electron Builder.
@@ -249,13 +249,13 @@ certificate.p12
 9. Run `bash package-mac-signed.sh`.
 10. Wait until you see the "notarization successful" message in the terminal - your app is ready for the world to see! Congratulations! 🎉
 
-![Notarization Success](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/notarization-success.png)
+![Notarization Success](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/notarization-success.jpg)
 *Your signed app is now ready for distribution*
 
 ### ❓ How to automate the above process using GitHub Actions?
 **1. GitHub Repository Setup**
 1. Create a new repository.
-![new-repo-code-signing](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/new-repo-code-signing.png)
+![new-repo-code-signing](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/new-repo-code-signing.jpg)
 2. Push your code.
 3. Encode the certificate and save the output in a secure place:
 ```bash
@@ -264,9 +264,9 @@ base64 -i certificate.p12
 
 **2. Create an S3 Bucket**
 1. Open the AWS Console > S3.
-![aws-s3](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/aws-s3.png)  
+![aws-s3](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/aws-s3.jpg)  
 2. Click "Create bucket".
-![create-bucket](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/create-bucket.png)  
+![create-bucket](https://raw.githubusercontent.com/omkarcloud/botasaurus/master/images/create-bucket.jpg)  
 3. Configure the bucket:
 ```
 Bucket name: Enter a unique bucket name. Conventionally, this name matches your product's name in kebab case. For example, if your product's name is "Chess Master," your bucket name will be `chess-master`.
@@ -281,7 +281,7 @@ Ensure that **Object Ownership** is set to **"ACLs enabled"** because Electron B
 ![ACL Error](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/acl-error.png)
 
 4. Click on "Create bucket".
-![S3 Bucket Creation](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/s3-bucket-setup.png)
+![S3 Bucket Creation](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/s3-bucket-setup.jpg)
 
 5. If you don't have an AWS access key and secret key, create them through the IAM service as described in [AWS documentation here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
 
@@ -297,7 +297,7 @@ AWS_ACCESS_KEY_ID            # AWS access key
 AWS_SECRET_ACCESS_KEY        # AWS secret key
 ```
 
-![GitHub Secrets](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-secrets.png)
+![GitHub Secrets](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-secrets.jpg)
 
 **4. Configure Electron Builder**
 1. In your "package.json" file, add the following to the Electron "build" configuration:
@@ -416,7 +416,7 @@ jobs:
 **6. Deploy**
 1. Push the code to your GitHub repository.
 2. Go to the repository's "Actions" tab to see the build process in action.
-![GitHub Actions Workflow](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-actions.png)
+![GitHub Actions Workflow](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/github-actions.jpg)
 3. After a successful build, the installer files will be found in your S3 bucket. These files will be publicly accessible in the following format:
 ```
 https://<your-bucket-name>.s3.amazonaws.com/<your-product-name>.dmg
@@ -430,7 +430,7 @@ Examples:
 
 4. Share the URL with your users to download the signed and notarized executable. Hurray! 🎉
 
-![S3 Distribution](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/s3-distribution.png)
+![S3 Distribution](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/s3-distribution.jpg)
 
 ### ❓ How to Set Up Auto Update for my Electron App?
 

@@ -286,7 +286,7 @@ Ensure that **Object Ownership** is set to **"ACLs enabled"** because Electron B
 5. If you don't have an AWS access key and secret key, create them through the IAM service as described in [AWS documentation here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user_manage_add-key.html).
 
 **3. Configure GitHub Secrets**
-In your GitHub Repository, navigate to Settings > Secrets and variables > Actions and add the following secrets:
+In your GitHub Repository, navigate to Settings > Secrets and variables > Actions > Repository secrets and add the following secrets:
 ```
 APPLE_ID                     # Your Apple ID email
 APPLE_APP_SPECIFIC_PASSWORD  # App Specific password

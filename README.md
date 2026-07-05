@@ -2,7 +2,7 @@
 
 [![Macos Code Signing Example Video](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png)](https://www.youtube.com/watch?v=hYBLfjT57hU)
 
-*Watch the above video to learn more about Mac signing and notarization in detail!*
+*Watch the above video to get you app code signed, and say bye bye to those nasty warnings!*
 
 ### ❓ How to sign and notarize an Electron App for macOS?
 

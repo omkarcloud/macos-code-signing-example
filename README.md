@@ -540,3 +540,5 @@ new AppUpdater();
   - When the user restarts their system, the new version will be automatically installed.
 
 ![Auto Update](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/auto-update.png)
+
+## Would appreciate a GitHub star

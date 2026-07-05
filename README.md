@@ -4,11 +4,12 @@ It's been over 40 years since the Mac was launched, and I still couldn't find a 
 
 Watch the video above to learn exactly how to get your app signed, and kick that nasty security warning for good!
 
-This method works — just check the comments section of the video, it's full of thank-you messages from people it's helped.
-
 [![Macos Code Signing Example Video](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/macos-code-signing-example-video.png)](https://www.youtube.com/watch?v=hYBLfjT57hU)
 
-Here's the text version of Code Signing
+This method works — just check the comments section of the video, it's full of thank-you messages from people it's helped.
+![Comments](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/comments.png)
+
+And Here's the text version of Complete MacOs Code Signing
 
 ### ❓ How to sign and notarize an Electron App for macOS?
 

@@ -541,4 +541,4 @@ new AppUpdater();
 
 ![Auto Update](https://raw.githubusercontent.com/omkarcloud/macos-code-signing-example/master/images/auto-update.png)
 
-## Would appreciate a GitHub star because this is cool ;), isn't it?
+## Would appreciate a GitHub star because this is cool ;) like you and me, isn't it?

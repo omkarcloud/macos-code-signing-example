@@ -6,7 +6,9 @@ jobs:
   package-mac:
     # Notarization is taking too long, exit
     timeout-minutes: 30
-    runs-on: macos-latest
+    # Pinned: macos-15/26 runners break electron-builder's code signing
+    # (`security set-key-partition-list` -> SecKeychainUnlock failure).
+    runs-on: macos-14
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3

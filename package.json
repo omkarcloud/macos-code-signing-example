@@ -135,7 +135,7 @@
     "css-minimizer-webpack-plugin": "^5.0.1",
     "detect-port": "^1.5.1",
     "electron": "^31.3.0",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.17.0",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
     "eslint": "^8.49.0",
@@ -183,8 +183,8 @@
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
-      "node_modules",
-      "package.json"
+      "package.json",
+      "!node_modules"
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
@@ -260,8 +260,16 @@
     "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
   "devEngines": {
-    "node": ">=14.x",
-    "npm": ">=7.x"
+    "runtime": {
+      "name": "node",
+      "version": ">=22.12.0",
+      "onFail": "warn"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=7",
+      "onFail": "warn"
+    }
   },
   "electronmon": {
     "patterns": [

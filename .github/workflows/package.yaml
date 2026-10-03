@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 30
     # Code signing on macOS 15+ runners needs electron-builder >= 26.17.0
     # (fixes the keychain password passed to `security set-key-partition-list`).
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
@@ -16,7 +16,7 @@ jobs:
       - name: Install Node.js and NPM
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 24
           cache: npm
 
       - name: npm install
@@ -50,7 +50,7 @@ jobs:
       - name: Install Node.js and NPM
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 24
           cache: npm
 
       - name: npm install
@@ -74,7 +74,7 @@ jobs:
       - name: Install Node.js and NPM
         uses: actions/setup-node@v3
         with:
-          node-version: latest
+          node-version: 24
           cache: npm
 
       - name: npm install

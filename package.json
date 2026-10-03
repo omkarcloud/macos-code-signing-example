@@ -278,5 +278,12 @@
       ".erb/dll/**"
     ],
     "logLevel": "quiet"
+  },
+  "allowScripts": {
+    "core-js": true,
+    "core-js-pure": true,
+    "electron": true,
+    "electron-winstaller": true,
+    "fsevents": true
   }
 }
